@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -21,16 +22,21 @@ public class TetrisPanel extends JPanel implements ActionListener, KeyListener {
 
     // フィールド情報（0:空, 1:ブロック）
     private int[][] field = new int[FIELD_HEIGHT][FIELD_WIDTH];
+    
+    private int score = 0;
+    private JLabel scoreLabel;
 
-    public TetrisPanel() {
+
+    public TetrisPanel(JLabel scoreLabel) {
+        this.scoreLabel = scoreLabel;
+        setPreferredSize(new Dimension(FIELD_WIDTH * BLOCK_SIZE, FIELD_HEIGHT * BLOCK_SIZE));
         setBackground(Color.BLACK);
-        timer = new Timer(500, this); // 落下間隔
+        timer = new Timer(500, this);
         timer.start();
         setFocusable(true);
         addKeyListener(this);
-        setPreferredSize(new Dimension(FIELD_WIDTH * BLOCK_SIZE, FIELD_HEIGHT * BLOCK_SIZE));
-        setBackground(Color.BLACK);
     }
+
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -93,7 +99,10 @@ public class TetrisPanel extends JPanel implements ActionListener, KeyListener {
     @Override public void keyReleased(KeyEvent e) {}
     @Override public void keyTyped(KeyEvent e) {}
     
+   
     private void clearLines() {
+        int linesCleared = 0;
+
         for (int y = FIELD_HEIGHT - 1; y >= 0; y--) {
             boolean full = true;
             for (int x = 0; x < FIELD_WIDTH; x++) {
@@ -104,14 +113,24 @@ public class TetrisPanel extends JPanel implements ActionListener, KeyListener {
             }
 
             if (full) {
-                // 1行下に詰める
                 for (int moveY = y; moveY > 0; moveY--) {
                     field[moveY] = field[moveY - 1].clone();
                 }
-                field[0] = new int[FIELD_WIDTH]; // 一番上は空に
-                y++; // 同じ行をもう一度確認（連続消去のため）
+                field[0] = new int[FIELD_WIDTH];
+                linesCleared++;
+                y++; // 再チェック
             }
+        }
+
+        // スコア加算
+        if (linesCleared > 0) {
+            score += linesCleared * 100;
+            updateScore();
         }
     }
 
+
+    private void updateScore() {
+        scoreLabel.setText("スコア：" + score);
+    }
 }
