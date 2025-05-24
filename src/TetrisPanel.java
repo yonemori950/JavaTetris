@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,6 +28,8 @@ public class TetrisPanel extends JPanel implements ActionListener, KeyListener {
         timer.start();
         setFocusable(true);
         addKeyListener(this);
+        setPreferredSize(new Dimension(FIELD_WIDTH * BLOCK_SIZE, FIELD_HEIGHT * BLOCK_SIZE));
+        setBackground(Color.BLACK);
     }
 
     @Override
@@ -65,6 +68,8 @@ public class TetrisPanel extends JPanel implements ActionListener, KeyListener {
     }
 
     private void spawnNewBlock() {
+        clearLines(); // ← 追加！
+
         blockX = 4;
         blockY = 0;
         if (field[blockY][blockX] == 1) {
@@ -72,6 +77,7 @@ public class TetrisPanel extends JPanel implements ActionListener, KeyListener {
             JOptionPane.showMessageDialog(this, "ゲームオーバー！");
         }
     }
+
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -86,4 +92,26 @@ public class TetrisPanel extends JPanel implements ActionListener, KeyListener {
 
     @Override public void keyReleased(KeyEvent e) {}
     @Override public void keyTyped(KeyEvent e) {}
+    
+    private void clearLines() {
+        for (int y = FIELD_HEIGHT - 1; y >= 0; y--) {
+            boolean full = true;
+            for (int x = 0; x < FIELD_WIDTH; x++) {
+                if (field[y][x] == 0) {
+                    full = false;
+                    break;
+                }
+            }
+
+            if (full) {
+                // 1行下に詰める
+                for (int moveY = y; moveY > 0; moveY--) {
+                    field[moveY] = field[moveY - 1].clone();
+                }
+                field[0] = new int[FIELD_WIDTH]; // 一番上は空に
+                y++; // 同じ行をもう一度確認（連続消去のため）
+            }
+        }
+    }
+
 }

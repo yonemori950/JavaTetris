@@ -4,11 +4,12 @@ public class TetrisFrame extends JFrame {
     public TetrisFrame() {
         setTitle("Javaテトリス STEP1");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(300, 600);
         setResizable(false);
         setLocationRelativeTo(null);
 
-        add(new TetrisPanel()); // パネル追加
+        TetrisPanel panel = new TetrisPanel();
+        add(panel);
+        pack(); // ← これでピッタリサイズに
     }
 
     public static void main(String[] args) {
